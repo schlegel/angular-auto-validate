@@ -145,19 +145,20 @@ function Bootstrap3ElementModifierFn($log) {
         $log.error('Angular-auto-validate: invalid bs3 form structure elements must be wrapped by a form-group class');
       }
     },
-      
+
     makeGlobalInvalid = function (elem, errorMsg) {
-      var helpTextEl = angular.element('<li>' + errorMsg + '</li>');
-      var frmElement = elem[0].closest("form");
-      var globalErrors = frmElement.querySelector(".globalErrorsList");        
-        if(!globalErrors) {
-            var globalErrorContainer = angular.element('<div class="globalErrorContainer alert alert-danger"></div>');
-            insertAfter(frmElement, globalErrorContainer);
-            globalErrors =  angular.element('<ul class="globalErrorsList"></ul>');
-            globalErrorContainer.append(globalErrors);
+      if (elem[0].closest) {
+        var helpTextEl = angular.element('<li>' + errorMsg + '</li>');
+        var frmElement = elem[0].closest("form");
+        var globalErrors = frmElement.querySelector(".globalErrorsList");
+        if (!globalErrors) {
+          var globalErrorContainer = angular.element('<div class="globalErrorContainer alert alert-danger"></div>');
+          insertAfter(frmElement, globalErrorContainer);
+          globalErrors = angular.element('<ul class="globalErrorsList"></ul>');
+          globalErrorContainer.append(globalErrors);
         }
-        
         angular.element(globalErrors).append(helpTextEl);
+      }
     },
 
     getCorrectElementToPlaceErrorElementAfter = function (el) {
@@ -188,22 +189,24 @@ function Bootstrap3ElementModifierFn($log) {
       } else {
         $log.error('Angular-auto-validate: invalid bs3 form structure elements must be wrapped by a form-group class');
       }
-    };
-    
+    },
+
     makeGlobalDefault = function (elem) {
-       var frmElement = elem[0].closest("form");
-       var globalErrors = frmElement.querySelector(".globalErrorContainer");  
-       if(globalErrors) {
-        angular.element(globalErrors).remove();
-       }
+      if (elem[0].closest) {
+        var frmElement = elem[0].closest("form");
+        var globalErrors = frmElement.querySelector(".globalErrorContainer");
+        if (globalErrors) {
+          angular.element(globalErrors).remove();
+        }
+      }
     };
 
   return {
     makeValid: makeValid,
     makeInvalid: makeInvalid,
-    makeGlobalInvalid : makeGlobalInvalid,
+    makeGlobalInvalid: makeGlobalInvalid,
     makeDefault: makeDefault,
-    makeGlobalDefault : makeGlobalDefault,
+    makeGlobalDefault: makeGlobalDefault,
     enableValidationStateIcons: enableValidationStateIcons,
     key: 'bs3'
   };

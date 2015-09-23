@@ -8,7 +8,9 @@ function SubmitDecorator($delegate, $parse, validationManager) {
         resetListenerOffFn;
 
       function handlerFn(event) {
+        if (formController.removeExternalGlobalValidation) {
           formController.removeExternalGlobalValidation();
+        }
         scope.$apply(function () {
           if (formController !== undefined &&
             formController !== null &&

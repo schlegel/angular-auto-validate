@@ -123,9 +123,9 @@ function ValidationManagerFn(validator, elementUtils) {
     resetElement = function (element) {
       validator.makeDefault(element);
     },
-      
-    resetGlobalValidation = function (element){
-       validator.makeGlobalDefault(element);
+
+    resetGlobalValidation = function (element) {
+      validator.makeGlobalDefault(element);
     },
 
     resetForm = function (frmElement) {
@@ -205,7 +205,7 @@ function ValidationManagerFn(validator, elementUtils) {
 
       return frmValid;
     },
-    
+
     setGlobalValidationError = function (frmElement, errorMsgKey, errorMsg) {
       if (errorMsgKey) {
         validator.getErrorMessage(errorMsgKey, undefined).then(function (msg) {
@@ -215,7 +215,7 @@ function ValidationManagerFn(validator, elementUtils) {
         validator.makeGlobalInvalid(frmElement, errorMsg);
       }
     },
-  
+
     setElementValidationError = function (element, errorMsgKey, errorMsg) {
       if (errorMsgKey) {
         validator.getErrorMessage(errorMsgKey, element).then(function (msg) {
@@ -228,7 +228,7 @@ function ValidationManagerFn(validator, elementUtils) {
 
   return {
     setElementValidationError: setElementValidationError,
-    setGlobalValidationError : setGlobalValidationError,
+    setGlobalValidationError: setGlobalValidationError,
     validateElement: validateElement,
     validateForm: validateForm,
     resetElement: resetElement,

@@ -1,5 +1,5 @@
 /*
- * angular-auto-validate - v1.18.16 - 2015-09-04
+ * angular-auto-validate - v1.18.16 - 2015-09-24
  * https://github.com/jonsamwell/angular-auto-validate
  * Copyright (c) 2015 Jon Samwell (http://www.jonsamwell.com)
  */
@@ -270,11 +270,19 @@ function ValidatorFn() {
     }
   };
 
+  this.makeGlobalInvalid = function (frmElem, errorMsg) {
+    this.getDomModifier(undefined).makeGlobalInvalid(frmElem, errorMsg);
+  };
+
   this.makeDefault = function (el) {
     var dm = this.getDomModifier(el);
     if (dm.makeDefault) {
       dm.makeDefault(el);
     }
+  };
+
+  this.makeGlobalDefault = function (el) {
+    this.getDomModifier(undefined).makeGlobalDefault(el);
   };
 
   this.defaultFormValidationOptions = {
@@ -442,6 +450,21 @@ function Bootstrap3ElementModifierFn($log) {
       }
     },
 
+    makeGlobalInvalid = function (elem, errorMsg) {
+      if (elem[0].closest) {
+        var helpTextEl = angular.element('<li>' + errorMsg + '</li>');
+        var frmElement = elem[0].closest("form");
+        var globalErrors = frmElement.querySelector(".globalErrorsList");
+        if (!globalErrors) {
+          var globalErrorContainer = angular.element('<div class="globalErrorContainer alert alert-danger"></div>');
+          insertAfter(frmElement, globalErrorContainer);
+          globalErrors = angular.element('<ul class="globalErrorsList"></ul>');
+          globalErrorContainer.append(globalErrors);
+        }
+        angular.element(globalErrors).append(helpTextEl);
+      }
+    },
+
     getCorrectElementToPlaceErrorElementAfter = function (el) {
       var correctEl = el,
         elType = el[0].type ? el[0].type.toLowerCase() : '';
@@ -470,12 +493,24 @@ function Bootstrap3ElementModifierFn($log) {
       } else {
         $log.error('Angular-auto-validate: invalid bs3 form structure elements must be wrapped by a form-group class');
       }
+    },
+
+    makeGlobalDefault = function (elem) {
+      if (elem[0].closest) {
+        var frmElement = elem[0].closest("form");
+        var globalErrors = frmElement.querySelector(".globalErrorContainer");
+        if (globalErrors) {
+          angular.element(globalErrors).remove();
+        }
+      }
     };
 
   return {
     makeValid: makeValid,
     makeInvalid: makeInvalid,
+    makeGlobalInvalid: makeGlobalInvalid,
     makeDefault: makeDefault,
+    makeGlobalDefault: makeGlobalDefault,
     enableValidationStateIcons: enableValidationStateIcons,
     key: 'bs3'
   };
@@ -934,6 +969,10 @@ function ValidationManagerFn(validator, elementUtils) {
       validator.makeDefault(element);
     },
 
+    resetGlobalValidation = function (element) {
+      validator.makeGlobalDefault(element);
+    },
+
     resetForm = function (frmElement) {
       angular.forEach((frmElement[0].all || frmElement[0].elements) || frmElement[0], function (element) {
         var controller,
@@ -1012,6 +1051,16 @@ function ValidationManagerFn(validator, elementUtils) {
       return frmValid;
     },
 
+    setGlobalValidationError = function (frmElement, errorMsgKey, errorMsg) {
+      if (errorMsgKey) {
+        validator.getErrorMessage(errorMsgKey, undefined).then(function (msg) {
+          validator.makeGlobalInvalid(frmElement, msg);
+        });
+      } else {
+        validator.makeGlobalInvalid(frmElement, errorMsg);
+      }
+    },
+
     setElementValidationError = function (element, errorMsgKey, errorMsg) {
       if (errorMsgKey) {
         validator.getErrorMessage(errorMsgKey, element).then(function (msg) {
@@ -1024,10 +1073,12 @@ function ValidationManagerFn(validator, elementUtils) {
 
   return {
     setElementValidationError: setElementValidationError,
+    setGlobalValidationError: setGlobalValidationError,
     validateElement: validateElement,
     validateForm: validateForm,
     resetElement: resetElement,
-    resetForm: resetForm
+    resetForm: resetForm,
+    resetGlobalValidation: resetGlobalValidation
   };
 }
 
@@ -1175,6 +1226,9 @@ function SubmitDecorator($delegate, $parse, validationManager) {
         resetListenerOffFn;
 
       function handlerFn(event) {
+        if (formController.removeExternalGlobalValidation) {
+          formController.removeExternalGlobalValidation();
+        }
         scope.$apply(function () {
           if (formController !== undefined &&
             formController !== null &&
@@ -1352,6 +1406,11 @@ angular.module('jcs-autoValidate').config(['$provide',
                   return success;
                 };
 
+                frmCtrl.setExternalGlobalValidation = function (errorMsgKey, errorMessageOverride) {
+                  validationManager.setGlobalValidationError(element, errorMsgKey, errorMessageOverride);
+                  return true;
+                };
+
                 frmCtrl.removeExternalValidation = function (modelProperty, errorMsgKey, errorMessageOverride, addToModelErrors) {
                   var success = false;
                   if (frmCtrl[modelProperty]) {
@@ -1360,6 +1419,11 @@ angular.module('jcs-autoValidate').config(['$provide',
                   }
 
                   return success;
+                };
+
+                frmCtrl.removeExternalGlobalValidation = function () {
+                  validationManager.resetGlobalValidation(element);
+                  return true;
                 };
               }
 
