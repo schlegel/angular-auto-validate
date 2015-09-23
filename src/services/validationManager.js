@@ -123,6 +123,10 @@ function ValidationManagerFn(validator, elementUtils) {
     resetElement = function (element) {
       validator.makeDefault(element);
     },
+      
+    resetGlobalValidation = function (element){
+       validator.makeGlobalDefault(element);
+    },
 
     resetForm = function (frmElement) {
       angular.forEach((frmElement[0].all || frmElement[0].elements) || frmElement[0], function (element) {
@@ -201,7 +205,17 @@ function ValidationManagerFn(validator, elementUtils) {
 
       return frmValid;
     },
-
+    
+    setGlobalValidationError = function (frmElement, errorMsgKey, errorMsg) {
+      if (errorMsgKey) {
+        validator.getErrorMessage(errorMsgKey, undefined).then(function (msg) {
+          validator.makeGlobalInvalid(frmElement, msg);
+        });
+      } else {
+        validator.makeGlobalInvalid(frmElement, errorMsg);
+      }
+    },
+  
     setElementValidationError = function (element, errorMsgKey, errorMsg) {
       if (errorMsgKey) {
         validator.getErrorMessage(errorMsgKey, element).then(function (msg) {
@@ -214,10 +228,12 @@ function ValidationManagerFn(validator, elementUtils) {
 
   return {
     setElementValidationError: setElementValidationError,
+    setGlobalValidationError : setGlobalValidationError,
     validateElement: validateElement,
     validateForm: validateForm,
     resetElement: resetElement,
-    resetForm: resetForm
+    resetForm: resetForm,
+    resetGlobalValidation: resetGlobalValidation
   };
 }
 

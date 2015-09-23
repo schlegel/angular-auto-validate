@@ -259,13 +259,21 @@ function ValidatorFn() {
       this.makeDefault(el);
     }
   };
-
+    
+  this.makeGlobalInvalid = function (frmElem, errorMsg) {
+      this.getDomModifier(undefined).makeGlobalInvalid(frmElem, errorMsg);
+  };
+    
   this.makeDefault = function (el) {
     var dm = this.getDomModifier(el);
     if (dm.makeDefault) {
       dm.makeDefault(el);
     }
   };
+    
+  this.makeGlobalDefault = function (el){
+    this.getDomModifier(undefined).makeGlobalDefault(el);
+  }
 
   this.defaultFormValidationOptions = {
     forceValidation: false,

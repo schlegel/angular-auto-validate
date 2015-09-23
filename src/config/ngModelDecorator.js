@@ -106,6 +106,11 @@ angular.module('jcs-autoValidate').config(['$provide',
                   return success;
                 };
 
+                frmCtrl.setExternalGlobalValidation = function (errorMsgKey, errorMessageOverride) {                 
+                    validationManager.setGlobalValidationError(element, errorMsgKey, errorMessageOverride);
+                  return true;
+                };
+                  
                 frmCtrl.removeExternalValidation = function (modelProperty, errorMsgKey, errorMessageOverride, addToModelErrors) {
                   var success = false;
                   if (frmCtrl[modelProperty]) {
@@ -114,6 +119,11 @@ angular.module('jcs-autoValidate').config(['$provide',
                   }
 
                   return success;
+                };
+                  
+                 frmCtrl.removeExternalGlobalValidation = function () {
+                    validationManager.resetGlobalValidation(element);
+                  return true;
                 };
               }
 
