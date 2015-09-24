@@ -455,9 +455,10 @@ function Bootstrap3ElementModifierFn($log) {
         var helpTextEl = angular.element('<li>' + errorMsg + '</li>');
         var frmElement = elem[0].closest("form");
         var globalErrors = frmElement.querySelector(".globalErrorsList");
+
         if (!globalErrors) {
           var globalErrorContainer = angular.element('<div class="globalErrorContainer alert alert-danger"></div>');
-          insertAfter(frmElement, globalErrorContainer);
+          angular.element(frmElement).prepend(globalErrorContainer);
           globalErrors = angular.element('<ul class="globalErrorsList"></ul>');
           globalErrorContainer.append(globalErrors);
         }
